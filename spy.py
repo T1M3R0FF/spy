@@ -1,23 +1,24 @@
+from pyrogram.enums import UserStatus
 from pyrogram import Client
 from data import *
 import time
 
 app = Client(name='my_acc', api_id=api_id, api_hash=api_hash)
+
 online_start_time = None
 
-users = {
-    'Markthewriter': {},
-    'clown000001': {}
-}
-
-with app:
-    for user in users:
-        chel = app.get_users(user)
-        user_id = chel.id
-        users[user].update({user_id: 0})
+users = ['Markthewriter', 'Jimmythedoc']
 
 
-def online_handler(client, update):
+def is_user_online(username):
+    user = app.get_users(username)
+    if user.status == UserStatus.ONLINE:
+        return True
+    elif user.status == UserStatus.OFFLINE:
+        return False
+
+
+"""def online_handler(client, update):
     global online_start_time
     if str(update.status) == "UserStatus.ONLINE" and update.id != client.get_me().id:
         if online_start_time is None:
@@ -48,13 +49,13 @@ def online_handler(client, update):
                 hrs = 0
             print(f'{user} вышел из онлайн, зашел в {good_format}, вышел в {good_format1},'
                   f' время в сети: {hrs} ч {mins} мин {int(online_duration)} сек')
-            users[user][user_id] += int(online_duration)
-            print(users)
         else:
             print('Юзер пока не заходил в сеть')
-        online_start_time = None
+        online_start_time = None"""
 
 
-app.on_user_status('UserStatus.ONLINE')(online_handler)
-
+#app.on_user_status('UserStatus.ONLINE')(online_handler)
+with app:
+    for username in users:
+        print(is_user_online(username))
 app.run()
