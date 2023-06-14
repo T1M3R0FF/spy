@@ -1,2 +1,3 @@
 api_id = 24103492
 api_hash = '7529393e63933311cef332a79b1127ce'
+bot_token = '6012808495:AAHzMKEY6AXyeapAZYi9JPksXoH048OxNgc'
