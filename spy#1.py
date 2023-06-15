@@ -31,6 +31,8 @@ reply_keyboard = ReplyKeyboardMarkup(keyboard=[
 
 users = ['Markthewriter', 'Jimmythedoc']
 online_time = {}
+last_bot_msg = ''
+chat_id = 734357667
 
 for person in users:
     online_time.update({person: {0.0: 0.0}})  # [online_start, online_end]
@@ -41,11 +43,20 @@ def command_start(client: app, message: Message):
 
 
 def key_add(_, message: Message):
-    message.reply('Введите ник юзера без "@" для добавления')
+    message.reply('Введите ник юзера вместе с "@" для добавления')
+
+    if message.text.startswith("@"):
+        username = message.text[1:]  # Удаление символа "@" из юзернейма
+        # Проверка наличия аккаунта с указанным юзернеймом
+        user = app.get_users(username)
+        if user:
+            message.reply(f"Аккаунт {username} найден в Telegram")
+        else:
+            message.reply(f"Аккаунт {username} не найден в Telegram")
 
 
 def key_delete(_, message: Message):
-    message.reply('Введите ник юзера без "@" для удаления')
+    message.reply('Введите ник юзера вместе с "@" для удаления')
 
 
 def key_schedule(_, message: Message):
@@ -53,7 +64,16 @@ def key_schedule(_, message: Message):
 
 
 def key_list(_, message: Message):
-    message.reply('Список пользователей для отслеживания:')
+    message.reply(f'Список пользователей для отслеживания:')
+    msg = '\n'.join(user for user in users)
+    message.reply(msg)
+
+
+# можно сделать изящнее, если проверять через тексты кнопок, а не список
+def all_reply(_, message):
+    texts = ['Внести нового юзера', 'Удалить юзера', 'График онлайна всех юзеров', 'Список всех юзеров']
+    if message.text not in texts:
+        message.reply('Используйте кнопки')
 
 
 @app.on_message(filters.command(commands=['start']))
@@ -81,16 +101,8 @@ def handle_key_list(client, message):
     key_list(client, message)
 
 
-# можно сделать изящнее, если проверять через тексты кнопок, а не список
-@app.on_message(filters.text)
-def handle_text_message(client, message):
-    texts = ['/start', 'Внести нового юзера', 'Удалить юзера', 'График онлайна всех юзеров', 'Список всех юзеров']
-    if message.text not in texts:
-        app.send_message(message.chat.id, "Пожалуйста, используйте кнопки для взаимодействия с ботом")
-        return
-
-
 app.add_handler(MessageHandler(command_start, filters.command(commands='start')))
+app.add_handler(MessageHandler(all_reply))
 app.add_handler(MessageHandler(key_add))
 app.add_handler(MessageHandler(key_delete))
 app.add_handler(MessageHandler(key_list))
@@ -99,7 +111,7 @@ app.add_handler(MessageHandler(key_schedule))
 bot_commands = [
     BotCommand(
         command='start',
-        description='get started'
+        description='перезапуск бота'
     )
 ]
 
@@ -198,7 +210,7 @@ def online_handler():
 """with app:
     online_handler()"""
 
-# app.run()
+#app.run()
 app.start()
 app.set_bot_commands(bot_commands)
 idle()
