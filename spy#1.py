@@ -31,7 +31,6 @@ reply_keyboard = ReplyKeyboardMarkup(keyboard=[
 
 users = ['Markthewriter', 'Jimmythedoc']
 online_time = {}
-last_bot_msg = ''
 chat_id = 734357667
 
 for person in users:
