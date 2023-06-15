@@ -81,6 +81,15 @@ def handle_key_list(client, message):
     key_list(client, message)
 
 
+# можно сделать изящнее, если проверять через тексты кнопок, а не список
+@app.on_message(filters.text)
+def handle_text_message(client, message):
+    texts = ['/start', 'Внести нового юзера', 'Удалить юзера', 'График онлайна всех юзеров', 'Список всех юзеров']
+    if message.text not in texts:
+        app.send_message(message.chat.id, "Пожалуйста, используйте кнопки для взаимодействия с ботом")
+        return
+
+
 app.add_handler(MessageHandler(command_start, filters.command(commands='start')))
 app.add_handler(MessageHandler(key_add))
 app.add_handler(MessageHandler(key_delete))
@@ -189,9 +198,8 @@ def online_handler():
 """with app:
     online_handler()"""
 
-  # app.run()
+# app.run()
 app.start()
 app.set_bot_commands(bot_commands)
 idle()
 app.stop()
-
