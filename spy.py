@@ -1,27 +1,27 @@
+import schedule
 from pyrogram.enums import UserStatus
 from pyrogram import Client
 from data import *
 import time
-import schedule
 import gspread
 from google.oauth2 import service_account
 
 cell_name_flag = False
 app = Client(name='my_acc', api_id=api_id, api_hash=api_hash)
-
+time_index = 2
 # Установка учетных данных и доступа к Google Sheets
 scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
 credentials = service_account.Credentials.from_service_account_file('cred.json', scopes=scope)
 
-# пользователь : {буквы ячейки: номер ячейки}
+# пользователь : {буква ячейки: номер ячейки}
 users = {
-    'shalimov_k': {
-        '': 2
-    },
-    'reilon': {
+    'DanilaGrischenko': {
         '': 2
     },
     'Jimmythedoc': {
+        '': 2
+    },
+    'Ded_l33t': {
         '': 2
     }
 }
@@ -38,6 +38,8 @@ def cell_name(usernames):
     spreadsheet = gspread.authorize(credentials)
     worksheet = spreadsheet.open('online_spy').worksheet('first_list')
     my_set = set()  # сет для проверки вноса всех имен из users
+    # первая ячейка - время
+    worksheet.update('A1', 'Дата и время')
     # проверка на наличие юзернейма в ячейке
     for username in usernames:
         for char in range(66, 90):
@@ -69,7 +71,7 @@ def sheet_clear():
     client = gspread.authorize(credentials)
     spreadsheet = client.open('online_spy')
     worksheet = spreadsheet.worksheet('first_list')
-    start_col = 2  # Начальный столбец (B)
+    start_col = 1  # Начальный столбец (А)
     end_col = 26  # Конечный столбец (Z)
     start_row = 1  # Начальная строка
     end_row = 289  # Конечная строка
@@ -84,11 +86,25 @@ def sheet_clear():
     print('Cleared')
 
 
+def time_insert():
+    global time_index
+    spreadsheet = gspread.authorize(credentials)
+    worksheet = spreadsheet.open('online_spy').worksheet('first_list')
+
+    struct = time.localtime(time.time())
+    good_format = time.strftime('%d.%m.%Y %H:%M', struct)
+
+    range_start = f'A{time_index}'
+    named_range = worksheet.range(range_start)
+    for _, cell in enumerate(named_range):
+        cell.value = good_format
+        worksheet.update_cells(named_range)
+
+
 def sheet_insert(name, status):
     spreadsheet = gspread.authorize(credentials)
     worksheet = spreadsheet.open('online_spy').worksheet('first_list')
     # Запись данных в именованный столбец
-
     for key in users[name]:
         range_start = f'{key}{users[name][key]}'
         named_range = worksheet.range(range_start)
@@ -98,7 +114,6 @@ def sheet_insert(name, status):
             worksheet.update_cells(named_range)
         print(users)
         print('updated')
-        # проверка на полное заполнение таблицы
         if users[name][key] < 289:
             users[name][key] += 1
         else:
@@ -108,19 +123,19 @@ def sheet_insert(name, status):
 
 
 def online_handler():
-    # заполнение именами должно сработать 1 раз
+    global time_index
     if not cell_name_flag:
         cell_name(users)
+    time_insert()
     for username in users:
-        struct = time.localtime(time.time())
-        good_format = time.strftime('%d.%m.%Y %H:%M:%S', struct)
-
         name, status = is_user_online(username)
         sheet_insert(name, status)
+    time_index += 1
 
 
 with app:
-    schedule.every(2).seconds.do(online_handler)
+    schedule.every(10).seconds.do(online_handler)
     while True:
         schedule.run_pending()
         time.sleep(1)
+
