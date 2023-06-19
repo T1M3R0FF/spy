@@ -1,4 +1,3 @@
-import schedule
 from pyrogram.enums import UserStatus
 from pyrogram import Client
 from data import *
@@ -18,7 +17,7 @@ users = {
     'DanilaGrischenko': {
         '': 2
     },
-    'Jimmythedoc': {
+    'mrsex001': {
         '': 2
     },
     'Ded_l33t': {
@@ -74,7 +73,7 @@ def sheet_clear():
     start_col = 1  # Начальный столбец (А)
     end_col = 26  # Конечный столбец (Z)
     start_row = 1  # Начальная строка
-    end_row = 289  # Конечная строка
+    end_row = 500  # Конечная строка
 
     # Очистка диапазона ячеек
     for col in range(start_col, end_col + 1):
@@ -114,7 +113,7 @@ def sheet_insert(name, status):
             worksheet.update_cells(named_range)
         print(users)
         print('updated')
-        if users[name][key] < 289:
+        if users[name][key] < 500:
             users[name][key] += 1
         else:
             print('сутки закончились')
@@ -134,8 +133,6 @@ def online_handler():
 
 
 with app:
-    schedule.every(10).seconds.do(online_handler)
     while True:
-        schedule.run_pending()
-        time.sleep(1)
-
+        online_handler()
+        time.sleep(60)
