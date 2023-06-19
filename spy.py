@@ -37,8 +37,8 @@ def cell_name(usernames):
     global cell_name_flag
     spreadsheet = gspread.authorize(credentials)
     worksheet = spreadsheet.open('online_spy').worksheet('first_list')
-    my_set = set()
-
+    my_set = set()  # сет для проверки вноса всех имен из users
+    # проверка на наличие юзернейма в ячейке
     for username in usernames:
         for char in range(66, 90):
             str_range = f'{chr(char)}1'
@@ -98,6 +98,7 @@ def sheet_insert(name, status):
             worksheet.update_cells(named_range)
         print(users)
         print('updated')
+        # проверка на полное заполнение таблицы
         if users[name][key] < 289:
             users[name][key] += 1
         else:
@@ -107,6 +108,7 @@ def sheet_insert(name, status):
 
 
 def online_handler():
+    # заполнение именами должно сработать 1 раз
     if not cell_name_flag:
         cell_name(users)
     for username in users:
@@ -118,7 +120,7 @@ def online_handler():
 
 
 with app:
-    schedule.every(5).minutes.do(online_handler)
+    schedule.every(2).seconds.do(online_handler)
     while True:
         schedule.run_pending()
         time.sleep(1)
