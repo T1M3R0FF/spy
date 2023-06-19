@@ -1,4 +1,3 @@
-import sqlite3
 from pyrogram.enums import UserStatus
 from pyrogram import Client
 from data import *
@@ -31,39 +30,6 @@ users = {
 def is_user_online(username):
     user = app.get_users(username)
     return username, int(user.status is UserStatus.ONLINE)
-
-
-def save_to_database(username, time, is_online):
-    conn = sqlite3.connect('online_time.db')
-    c = conn.cursor()
-
-    c.execute("INSERT INTO online_time (username, time, is_online) VALUES (?, ?, ?)",
-              (username, time, is_online))
-
-    conn.commit()
-
-
-def is_database_empty():
-    conn = sqlite3.connect('online_time.db')
-    c = conn.cursor()
-    c.execute('SELECT COUNT(*) FROM online_time')
-
-    result = c.fetchone()
-    count = result[0]
-    return count == 0
-
-
-def create_table_if_not_exists():
-    conn = sqlite3.connect('online_time.db')
-    c = conn.cursor()
-
-    c.execute('''CREATE TABLE IF NOT EXISTS online_time
-              (id INTEGER PRIMARY KEY AUTOINCREMENT,
-               username TEXT,
-               time REAL,
-               is_online INTEGER)''')
-
-    conn.commit()
 
 
 # запись имени в таблицу и получение буквы ячейки юзера
@@ -141,7 +107,6 @@ def sheet_insert(name, status):
 
 
 def online_handler():
-    create_table_if_not_exists()
     if not cell_name_flag:
         cell_name(users)
     for username in users:
@@ -149,7 +114,6 @@ def online_handler():
         good_format = time.strftime('%d.%m.%Y %H:%M:%S', struct)
 
         name, status = is_user_online(username)
-        save_to_database(name, good_format, status)
         sheet_insert(name, status)
 
 
