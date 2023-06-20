@@ -33,10 +33,9 @@ def cell_name(usernames):
     first_row = ['Дата и время'] + usernames
 
     # обновление строки новыми именами
-    row_range = 'A1:' + chr(ord('A') + len(first_row) - 1) + '1'
     row_data = [first_row]
 
-    worksheet.update(row_range, row_data)
+    worksheet.update('A1', row_data)
 
 
 # внос статусов
