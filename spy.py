@@ -1,23 +1,20 @@
-from pyrogram.enums import UserStatus
-from pyrogram import Client
-from data import *
 import time
 import gspread
+import os
+from pyrogram.enums import UserStatus
+from pyrogram import Client
 from google.oauth2 import service_account
+from dotenv import load_dotenv, find_dotenv
 
-app = Client(name='my_acc', api_id=api_id, api_hash=api_hash)
+load_dotenv(find_dotenv())
+
+app = Client(name='my_acc', api_id=os.getenv('api_id'), api_hash=os.getenv('api_hash'))
 
 # Установка учетных данных и доступа к Google Sheets
 scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
 credentials = service_account.Credentials.from_service_account_file('cred.json', scopes=scope)
 
-users = [
-    'DanilaGrischenko',
-    'mrsex001',
-    'Ded_l33t',
-    'shalimov_k',
-    'Yandex6'
-]
+users = os.getenv('users').split(',')
 
 
 def is_user_online(username):
